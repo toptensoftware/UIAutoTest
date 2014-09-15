@@ -33,8 +33,8 @@ namespace UIAutoTest
                     break;
 
                 case Win32.WM_GETOBJECT:
-                    Console.WriteLine(lParam.ToInt32());
-                    if (lParam.ToInt32() == AutomationInteropProvider.RootObjectId)
+
+                    if ((int)lParam.ToInt64() == AutomationInteropProvider.RootObjectId)
                     {
                         return AutomationInteropProvider.ReturnRawElementProvider(Handle, wParam, lParam, this);
                     }
