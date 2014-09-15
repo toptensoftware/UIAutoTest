@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using GuiKit.WinInterop;
+using System.Runtime.InteropServices;
 
 namespace UIAutoTest
 {
+    [ComVisible(true)]
     public class Window : IDisposable
     {
         public Window()
