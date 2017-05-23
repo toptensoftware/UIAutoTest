@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Automation;
 using System.Windows.Automation.Provider;
 using GuiKit.WinInterop;
 
@@ -19,6 +20,30 @@ namespace UIAutoTest
         public Host Host;
         public Win32.RECT Bounds;
         public string Text;
+
+        bool _hasFocus;
+        public bool HasFocus
+        {
+            get
+            {
+                return _hasFocus;
+            }
+            set
+            {
+                if (_hasFocus != value && AutomationPeer!=null)
+                {
+                    _hasFocus = value;
+                    _peer.OnFocusChanged();
+
+                    AutomationInteropProvider.RaiseAutomationEvent(
+                        AutomationElement.AutomationFocusChangedEvent,
+                        AutomationPeer,
+                        new AutomationEventArgs(AutomationElement.AutomationFocusChangedEvent)
+                        );
+
+                }
+            }
+        }
 
         AutomationPeer _peer;
         public AutomationPeer AutomationPeer
@@ -43,6 +68,10 @@ namespace UIAutoTest
                         },
                         SetFocus = () =>
                         {
+                        },
+                        HasFocus = () =>
+                        {
+                            return HasFocus;
                         },
                         GetHostRawElementProvider = () =>
                         {

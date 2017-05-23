@@ -22,6 +22,7 @@ namespace UIAutoTest
 
             // Focus the first
             _focus = _controls[0];
+            _focus.HasFocus = true;
         }
 
         protected override IntPtr WndProc(uint message, IntPtr wParam, IntPtr lParam)
@@ -30,6 +31,14 @@ namespace UIAutoTest
             {
                 case Win32.WM_CLOSE:
                     Win32.PostQuitMessage(0);
+                    break;
+
+                case Win32.WM_SETFOCUS:
+                    _focus.HasFocus = true;
+                    break;
+
+                case Win32.WM_KILLFOCUS:
+                    _focus.HasFocus = false;
                     break;
 
                 case Win32.WM_GETOBJECT:
@@ -82,15 +91,19 @@ namespace UIAutoTest
 
         void SetFocus(Control control)
         {
+            if (_focus != null)
+                _focus.HasFocus = false;
+
             _focus = control;
+
+            if (_focus != null)
+                _focus.HasFocus = true;
+
             Win32.InvalidateRect(Handle, IntPtr.Zero, false);
 
-            AutomationInteropProvider.RaiseAutomationEvent(
-                AutomationElement.AutomationFocusChangedEvent,
-                this,
-                new AutomationFocusChangedEventArgs(0, _focus.AutomationPeer.RuntimeID)
-                );
-                
+//            new AutomationFocusChangedEventArgs(1, _focus.AutomationPeer.RuntimeID)
+
+
         }
 
         public Control GetSibling(Control from, int delta, bool wrap=false)
@@ -146,7 +159,7 @@ namespace UIAutoTest
 
             if (propertyId == AutomationElement.HasKeyboardFocusProperty.Id)
             {
-                return Win32.GetFocus() == Handle;
+                return false;// return Win32.GetFocus() == Handle;
             }
 
             return null;
@@ -160,7 +173,7 @@ namespace UIAutoTest
 
         int[] IRawElementProviderFragment.GetRuntimeId()
         {
-            return null;
+            return new int[] { AutomationInteropProvider.AppendRuntimeId, 1 };
         }
 
         IRawElementProviderFragment IRawElementProviderFragment.Navigate(NavigateDirection direction)

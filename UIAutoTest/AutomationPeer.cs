@@ -74,7 +74,7 @@ namespace UIAutoTest
         }
 
         int _runtimeId;
-        static int _nextRuntimeId = 1;
+        static int _nextRuntimeId = 20;
 
         public Dictionary<int, object> Properties = new Dictionary<int, object>();
 
@@ -85,6 +85,7 @@ namespace UIAutoTest
         public Func<Win32.RECT> GetBounds;
         internal Func<IRawElementProviderFragmentRoot> GetFragmentRoot;
         public Action SetFocus;
+        public Func<bool> HasFocus;
         public Func<NavigateDirection, AutomationPeer> NavigateHandler;
         public Func<string> GetValue;
         public Action<string> SetValue;
@@ -178,6 +179,11 @@ namespace UIAutoTest
             if (Properties.TryGetValue(propertyId, out val))
                 return val;
 
+            if (propertyId == AutomationElementIdentifiers.HasKeyboardFocusProperty.Id && HasFocus != null)
+            {
+                return HasFocus();
+            }
+
             if (propertyId == AutomationElementIdentifiers.NameProperty.Id && GetText != null)
             {
                 return GetText();
@@ -257,6 +263,11 @@ namespace UIAutoTest
                 }
                 throw new NotImplementedException();
             }
+        }
+
+        public void OnFocusChanged()
+        {
+            AutomationInteropProvider.RaiseAutomationPropertyChangedEvent(this, new AutomationPropertyChangedEventArgs(AutomationElementIdentifiers.HasKeyboardFocusProperty, !HasFocus(), HasFocus()));
         }
     }
 }
